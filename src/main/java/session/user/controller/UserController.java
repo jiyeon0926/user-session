@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import session.user.dto.UserDetailResDto;
-import session.user.dto.UserPasswordReqDto;
-import session.user.dto.UserResDto;
-import session.user.dto.UserSignUpReqDto;
+import session.user.dto.*;
 import session.user.service.UserService;
 
 @RestController
@@ -49,5 +46,14 @@ public class UserController {
         userService.updatePassword(userId, userPasswordReqDto.getOldPassword(), userPasswordReqDto.getNewPassword());
 
         return new ResponseEntity<>("비밀번호 변경 완료", HttpStatus.OK);
+    }
+
+    // 이름 변경
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserResDto> updateName(@PathVariable Long userId,
+                                                 @Valid @RequestBody UserNameReqDto userNameReqDto) {
+        UserResDto userResDto = userService.updateName(userId, userNameReqDto.getName());
+
+        return new ResponseEntity<>(userResDto, HttpStatus.OK);
     }
 }

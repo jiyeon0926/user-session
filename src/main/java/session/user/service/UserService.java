@@ -12,6 +12,8 @@ import session.user.entity.User;
 import session.user.enums.UserRole;
 import session.user.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -73,5 +75,30 @@ public class UserService {
 
         String encodedNewPassword = passwordEncoder.encode(newPassword);
         user.updatePassword(encodedNewPassword);
+    }
+
+    @Transactional
+    public UserResDto updateName(Long userId, String name) {
+        User user = userRepository.findUserByIdAndIsDeleted(userId, false)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+
+        userRepository.findUserByName(name)
+                .ifPresent(userName -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 있는 이름입니다.");
+                });
+
+        if (name.equals(user.getName())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 동일한 이름입니다.");
+        }
+
+        user.updateName(name);
+
+        return new UserResDto(
+                user.getId(),
+                user.getName(),
+                user.getRole().name(),
+                user.getCreatedAt(),
+                user.getModifiedAt()
+        );
     }
 }
