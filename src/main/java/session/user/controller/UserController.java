@@ -29,8 +29,14 @@ public class UserController {
 
     // 회원탈퇴
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
+    public ResponseEntity<String> deleteUser(@PathVariable Long userId,
+                                             HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        UserDetailResDto user = (UserDetailResDto) session.getAttribute(Const.SESSION_KEY);
+        Boolean check = (Boolean) session.getAttribute(Const.SESSION_CHECK);
+
+        userService.deleteUser(userId, user.getId(), check);
+        session.invalidate();
 
         return new ResponseEntity<>("회원 탈퇴 완료", HttpStatus.OK);
     }
@@ -67,5 +73,19 @@ public class UserController {
         UserResDto userResDto = userService.updateName(userId, userNameReqDto.getName(), user.getId());
 
         return new ResponseEntity<>(userResDto, HttpStatus.OK);
+    }
+
+    // 비밀번호 확인
+    @PostMapping("/check")
+    public ResponseEntity<String> checkPassword(@Valid @RequestBody UserCheckReqDto userCheckReqDto,
+                                                HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        UserDetailResDto user = (UserDetailResDto) session.getAttribute(Const.SESSION_KEY);
+
+        userService.checkPassword(userCheckReqDto.getPassword(), user.getId());
+
+        session.setAttribute(Const.SESSION_CHECK, true);
+
+        return new ResponseEntity<>("비밀번호 확인 완료", HttpStatus.OK);
     }
 }

@@ -43,7 +43,15 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, Long sessionUserId, Boolean check) {
+        if (check == null || !check) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비밀번호 확인이 필요합니다.");
+        }
+
+        if (!userId.equals(sessionUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인만 회원탈퇴를 할 수 있습니다.");
+        }
+
         User user = userRepository.findUserById(userId);
         userRepository.delete(user);
     }
@@ -123,5 +131,15 @@ public class UserService {
         }
 
         return new LoginResDto(user.getId());
+    }
+
+    // 회원탈퇴 시, 비밀번호 인증 필요
+    public void checkPassword(String password, Long sessionUserId) {
+        User user = userRepository.findUserById(sessionUserId);
+        boolean matches = passwordEncoder.matches(password, user.getPassword());
+
+        if (!matches) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+        }
     }
 }
