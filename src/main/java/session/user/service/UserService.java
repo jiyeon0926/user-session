@@ -84,7 +84,11 @@ public class UserService {
     }
 
     @Transactional
-    public UserResDto updateName(Long userId, String name) {
+    public UserResDto updateName(Long userId, String name, Long sessionUserId) {
+        if (!userId.equals(sessionUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인만 이름을 변경할 수 있습니다.");
+        }
+
         User user = userRepository.findUserByIdAndIsDeleted(userId, false)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 

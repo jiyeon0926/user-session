@@ -59,8 +59,12 @@ public class UserController {
     // 이름 변경
     @PatchMapping("/{userId}")
     public ResponseEntity<UserResDto> updateName(@PathVariable Long userId,
-                                                 @Valid @RequestBody UserNameReqDto userNameReqDto) {
-        UserResDto userResDto = userService.updateName(userId, userNameReqDto.getName());
+                                                 @Valid @RequestBody UserNameReqDto userNameReqDto,
+                                                 HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        UserDetailResDto user = (UserDetailResDto) session.getAttribute(Const.SESSION_KEY);
+
+        UserResDto userResDto = userService.updateName(userId, userNameReqDto.getName(), user.getId());
 
         return new ResponseEntity<>(userResDto, HttpStatus.OK);
     }
