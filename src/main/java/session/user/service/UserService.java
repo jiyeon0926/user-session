@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import session.user.config.util.PasswordEncoder;
+import session.user.dto.LoginResDto;
 import session.user.dto.UserDetailResDto;
 import session.user.dto.UserResDto;
 import session.user.entity.User;
@@ -54,7 +55,8 @@ public class UserService {
 
         return new UserDetailResDto(
                 user.getId(),
-                user.getName()
+                user.getName(),
+                user.getRole()
         );
     }
 
@@ -100,5 +102,18 @@ public class UserService {
                 user.getCreatedAt(),
                 user.getModifiedAt()
         );
+    }
+
+    public LoginResDto login(String name, String password) {
+        User user = userRepository.findUserByName(name)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
+
+        boolean matches = passwordEncoder.matches(password, user.getPassword());
+
+        if (!matches) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+        }
+
+        return new LoginResDto(user.getId());
     }
 }
