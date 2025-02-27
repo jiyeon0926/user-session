@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import session.user.dto.UserDetailResDto;
+import session.user.dto.UserPasswordReqDto;
 import session.user.dto.UserResDto;
 import session.user.dto.UserSignUpReqDto;
 import session.user.service.UserService;
@@ -39,5 +40,14 @@ public class UserController {
         UserDetailResDto user = userService.findUserById(userId);
 
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    // 비밀번호 변경
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<String> updatePassword(@PathVariable Long userId,
+                                                 @Valid @RequestBody UserPasswordReqDto userPasswordReqDto) {
+        userService.updatePassword(userId, userPasswordReqDto.getOldPassword(), userPasswordReqDto.getNewPassword());
+
+        return new ResponseEntity<>("비밀번호 변경 완료", HttpStatus.OK);
     }
 }

@@ -55,4 +55,23 @@ public class UserService {
                 user.getName()
         );
     }
+
+    @Transactional
+    public void updatePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userRepository.findUserByIdAndIsDeleted(userId, false)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+
+        boolean matches = passwordEncoder.matches(oldPassword, user.getPassword());
+
+        if (!matches) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
+        }
+
+        if (newPassword.equals(oldPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "동일한 비밀번호를 사용할 수 없습니다.");
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        user.updatePassword(encodedNewPassword);
+    }
 }
