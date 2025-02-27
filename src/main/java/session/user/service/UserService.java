@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import session.user.config.util.PasswordEncoder;
+import session.user.dto.UserDetailResDto;
 import session.user.dto.UserResDto;
 import session.user.entity.User;
 import session.user.enums.UserRole;
@@ -42,5 +43,16 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findUserById(userId);
         userRepository.delete(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetailResDto findUserById(Long userId) {
+        User user = userRepository.findUserByIdAndIsDeleted(userId, false)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+
+        return new UserDetailResDto(
+                user.getId(),
+                user.getName()
+        );
     }
 }
