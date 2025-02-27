@@ -61,7 +61,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(Long userId, String oldPassword, String newPassword) {
+    public void updatePassword(Long userId, String oldPassword, String newPassword, Long sessionUserId) {
+        if (!userId.equals(sessionUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인만 비밀번호를 변경할 수 있습니다.");
+        }
+
         User user = userRepository.findUserByIdAndIsDeleted(userId, false)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 

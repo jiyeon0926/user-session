@@ -1,11 +1,15 @@
 package session.user.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import session.user.common.Const;
 import session.user.dto.*;
+import session.user.entity.User;
 import session.user.service.UserService;
 
 @RestController
@@ -42,8 +46,12 @@ public class UserController {
     // 비밀번호 변경
     @PatchMapping("/{userId}/password")
     public ResponseEntity<String> updatePassword(@PathVariable Long userId,
-                                                 @Valid @RequestBody UserPasswordReqDto userPasswordReqDto) {
-        userService.updatePassword(userId, userPasswordReqDto.getOldPassword(), userPasswordReqDto.getNewPassword());
+                                                 @Valid @RequestBody UserPasswordReqDto userPasswordReqDto,
+                                                 HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        UserDetailResDto user = (UserDetailResDto) session.getAttribute(Const.SESSION_KEY);
+
+        userService.updatePassword(userId, userPasswordReqDto.getOldPassword(), userPasswordReqDto.getNewPassword(), user.getId());
 
         return new ResponseEntity<>("비밀번호 변경 완료", HttpStatus.OK);
     }
