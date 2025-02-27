@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import session.user.dto.UserResDto;
 import session.user.dto.UserSignUpReqDto;
 import session.user.service.UserService;
@@ -25,5 +22,13 @@ public class UserController {
         UserResDto signup = userService.userSignup(userSignUpReqDto.getName(), userSignUpReqDto.getPassword());
 
         return new ResponseEntity<>(signup, HttpStatus.CREATED);
+    }
+
+    // 회원탈퇴
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+
+        return new ResponseEntity<>("회원 탈퇴 완료", HttpStatus.OK);
     }
 }

@@ -37,4 +37,10 @@ public class UserService {
                 savedUser.getModifiedAt()
         );
     }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findUserById(userId);
+        userRepository.delete(user);
+    }
 }
